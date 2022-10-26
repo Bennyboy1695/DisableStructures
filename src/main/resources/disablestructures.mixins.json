@@ -1,0 +1,15 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "io.github.bennyboy1695.disablestructures.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "refmap": "disablestructures.refmap.json",
+  "mixins": [
+    "MixinChunkGenerator"
+  ],
+  "client": [
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
