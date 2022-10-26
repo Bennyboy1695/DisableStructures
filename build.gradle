@@ -16,7 +16,7 @@ plugins {
 apply plugin: 'org.spongepowered.mixin'
 
 group = 'io.github.bennyboy1695'
-version = '1.0.0'
+version = '1.0.1'
 
 java {
     archivesBaseName = 'DisableStructures'
