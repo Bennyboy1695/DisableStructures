@@ -1,5 +1,6 @@
 package io.github.bennyboy1695.disablestructures;
 
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 import net.minecraftforge.fml.common.Mod;
@@ -21,7 +22,7 @@ public class Config {
 
         public Common() {
             debug = COMMON_BUILDER.comment("If enabled will output to the debug.log when a structure is disabled.").define("Enable Debug", false);
-            disabledStructures = COMMON_BUILDER.comment("This list defines the structures that should be disabled from generating.").defineListAllowEmpty(List.of("Disabled Structures"),() -> List.of("minecraft:desert_pyramid"), key -> ForgeRegistries.STRUCTURE_FEATURES.containsKey(new ResourceLocation((String) key)));
+            disabledStructures = COMMON_BUILDER.comment("This list defines the structures that should be disabled from generating.").defineListAllowEmpty(List.of("Disabled Structures"),() -> List.of("minecraft:desert_pyramid"), key -> Registry.STRUCTURE_TYPES.containsKey(new ResourceLocation((String) key)));
         }
     }
 
