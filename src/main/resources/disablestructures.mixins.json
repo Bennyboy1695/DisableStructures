@@ -3,7 +3,7 @@
   "minVersion": "0.8",
   "package": "io.github.bennyboy1695.disablestructures.mixin",
   "compatibilityLevel": "JAVA_8",
-  "refmap": "disablestructures.refmap.json",
+  "refmap": "DisableStructures-refmap.json",
   "mixins": [
     "MixinChunkGenerator"
   ],
