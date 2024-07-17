@@ -22,7 +22,7 @@ public class Config {
 
         public Common() {
             debug = COMMON_BUILDER.comment("If enabled will output to the debug.log when a structure is disabled.").define("Enable Debug", false);
-            disabledStructures = COMMON_BUILDER.comment("This list defines the structures that should be disabled from generating.").defineListAllowEmpty(List.of("Disabled Structures"),() -> List.of("minecraft:desert_pyramid"), key -> BuiltInRegistries.STRUCTURE_TYPE.containsKey(new ResourceLocation((String) key)));
+            disabledStructures = COMMON_BUILDER.comment("This list defines the structures that should be disabled from generating.").defineListAllowEmpty(List.of("Disabled Structures"),() -> List.of("minecraft:desert_pyramid"), s -> ResourceLocation.isValidResourceLocation((String) s));
         }
     }
 
