@@ -4,14 +4,17 @@ import com.mojang.datafixers.util.Pair;
 import io.github.bennyboy1695.disablestructures.Config;
 import io.github.bennyboy1695.disablestructures.DisableStructures;
 import net.minecraft.core.*;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.StructureFeatureManager;
+import net.minecraft.world.level.StructureManager;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
-import net.minecraft.world.level.levelgen.feature.ConfiguredStructureFeature;
+import net.minecraft.world.level.levelgen.RandomState;
+import net.minecraft.world.level.levelgen.structure.Structure;
 import net.minecraft.world.level.levelgen.structure.StructureSet;
-import net.minecraft.world.level.levelgen.structure.templatesystem.StructureManager;
+import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -22,19 +25,21 @@ public class MixinChunkGenerator {
 
 
     @Inject(method = "tryGenerateStructure", at = @At("HEAD"), cancellable = true)
-    public void disableStructures$AttemptStructureDisable(StructureSet.StructureSelectionEntry structureSelectionEntry, StructureFeatureManager structureFeatureManager, RegistryAccess registryAccess, StructureManager structureManager, long chunk, ChunkAccess chunkAccess, ChunkPos chunkPos, SectionPos sectionPos, CallbackInfoReturnable<Boolean> cir) {
-        if (Config.COMMON.disabledStructures.get().contains(structureSelectionEntry.structure().value().feature.getRegistryName().toString())) {
+    public void disableStructures$AttemptStructureDisable(StructureSet.StructureSelectionEntry structureSelectionEntry, StructureManager structureManager, RegistryAccess registryAccess, RandomState randomState, StructureTemplateManager structureTemplateManager, long p_223110_, ChunkAccess chunkAccess, ChunkPos chunkPos, SectionPos sectionPos, CallbackInfoReturnable<Boolean> cir) {
+        ResourceLocation structure = BuiltInRegistries.STRUCTURE_TYPE.getKey(structureSelectionEntry.structure().value().type());
+        if (Config.COMMON.disabledStructures.get().contains(structure.toString())) {
             if (Config.COMMON.debug.get()) {
-                DisableStructures.LOGGER.debug("Disabled generation of {}", structureSelectionEntry.structure().value().feature.getRegistryName().toString());
+                DisableStructures.LOGGER.debug("Disabled generation of {}", structure.toString());
             }
             cir.setReturnValue(false);
         }
     }
 
-    @Inject(method = "findNearestMapFeature", at = @At("HEAD"), cancellable = true)
-    public void disableStructures$FindNoDisabledStructuresInsteadOfLooking(ServerLevel level, HolderSet<ConfiguredStructureFeature<?, ?>> configuredStructureFeatureHolderSet, BlockPos blockPos, int tries, boolean p_207975_, CallbackInfoReturnable<Pair<BlockPos, Holder<ConfiguredStructureFeature<?, ?>>>> cir) {
-        configuredStructureFeatureHolderSet.stream().forEach(configuredStructureFeatureHolder -> {
-            if (Config.COMMON.disabledStructures.get().contains(configuredStructureFeatureHolder.value().feature.getRegistryName().toString())) {
+    @Inject(method = "findNearestMapStructure", at = @At("HEAD"), cancellable = true)
+    public void disableStructures$FindNoDisabledStructuresInsteadOfLooking(ServerLevel serverLevel, HolderSet<Structure> structureHolderSet, BlockPos blockPos, int p_223041_, boolean p_223042_, CallbackInfoReturnable<Pair<BlockPos, Holder<Structure>>> cir) {
+        structureHolderSet.stream().forEach(configuredStructureFeatureHolder -> {
+            ResourceLocation structure = BuiltInRegistries.STRUCTURE_TYPE.getKey(configuredStructureFeatureHolder.value().type());
+            if (Config.COMMON.disabledStructures.get().contains(structure.toString())) {
                 cir.setReturnValue(null);
             }
         });
