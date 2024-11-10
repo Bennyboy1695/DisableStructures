@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import io.github.bennyboy1695.disablestructures.Config;
 import io.github.bennyboy1695.disablestructures.DisableStructures;
 import net.minecraft.core.*;
+import net.minecraft.data.BuiltinRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.ChunkPos;
@@ -25,10 +26,10 @@ public class MixinChunkGenerator {
 
     @Inject(method = "tryGenerateStructure", at = @At("HEAD"), cancellable = true)
     public void disableStructures$AttemptStructureDisable(StructureSet.StructureSelectionEntry structureSelectionEntry, StructureManager structureManager, RegistryAccess registryAccess, RandomState randomState, StructureTemplateManager structureTemplateManager, long seed, ChunkAccess chunkAccess, ChunkPos chunkPos, SectionPos sectionPos, CallbackInfoReturnable<Boolean> cir) {
-        ResourceLocation location = Registry.STRUCTURE_TYPES.getKey(structureSelectionEntry.structure().value().type());
-        if (Config.COMMON.disabledStructures.get().contains(location.toString())) {
+        ResourceLocation structure = registryAccess.registryOrThrow(BuiltinRegistries.STRUCTURES.key()).getKey(structureSelectionEntry.structure().get());
+        if (Config.COMMON.disabledStructures.get().contains(structure.toString())) {
             if (Config.COMMON.debug.get()) {
-                DisableStructures.LOGGER.debug("Disabled generation of {}", location);
+                DisableStructures.LOGGER.debug("Disabled generation of {}", structure);
             }
             cir.setReturnValue(false);
         }
@@ -37,8 +38,8 @@ public class MixinChunkGenerator {
     @Inject(method = "findNearestMapStructure", at = @At("HEAD"), cancellable = true)
     public void disableStructures$FindNoDisabledStructuresInsteadOfLooking(ServerLevel serverLevel, HolderSet<Structure> structureHolderSet, BlockPos blockPos, int i, boolean bool, CallbackInfoReturnable<Pair<BlockPos, Holder<Structure>>> cir) {
         structureHolderSet.stream().forEach(configuredStructureFeatureHolder -> {
-            ResourceLocation location = Registry.STRUCTURE_TYPES.getKey(configuredStructureFeatureHolder.value().type());
-            if (Config.COMMON.disabledStructures.get().contains(location.toString())) {
+            ResourceLocation structure = serverLevel.registryAccess().registryOrThrow(BuiltinRegistries.STRUCTURES.key()).getKey(configuredStructureFeatureHolder.get());
+            if (Config.COMMON.disabledStructures.get().contains(structure.toString())) {
                 cir.setReturnValue(null);
             }
         });
